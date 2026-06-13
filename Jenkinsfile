@@ -11,6 +11,19 @@ pipeline {
                 git url: 'https://github.com/app-generator/app-generator.git', branch: 'main'
             }
         }
+
+        stage('Lint & Static Analysis') {
+            steps {
+                sh '''
+                    python3 -m venv venv
+                    . venv/bin/activate
+                    pip install --upgrade pip
+                    pip install flake8
+                    [ -f requirements.txt ] && pip install -r requirements.txt || echo "No requirements.txt found"
+                    flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+                '''
+            }
+        }
     }
 
     post {
@@ -23,4 +36,3 @@ pipeline {
         }
     }
 }
-
