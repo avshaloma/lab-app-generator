@@ -20,7 +20,7 @@ pipeline {
                     pip install --upgrade pip
                     pip install flake8
                     [ -f requirements.txt ] && pip install -r requirements.txt || echo "No requirements.txt found"
-                    flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+                    flake8 . --exclude=venv,.git --count --select=E9,F63,F7,F82 --show-source --statistics
                 '''
             }
         }
