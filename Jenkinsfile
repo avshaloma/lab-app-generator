@@ -24,6 +24,20 @@ pipeline {
                 '''
             }
         }
+
+        stage('Execute Tests') {
+            steps {
+                sh '''
+                    . venv/bin/activate
+                    pip install pytest
+                    if [ -d tests ]; then
+                        pytest tests
+                    else
+                        echo "No tests directory found"
+                    fi
+                '''
+            }
+        }
     }
 
     post {
