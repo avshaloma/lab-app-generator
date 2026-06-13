@@ -30,6 +30,7 @@ pipeline {
                 sh '''
                     . venv/bin/activate
                     pip install pytest
+
                     if [ -d tests ]; then
                         pytest tests
                     else
@@ -38,9 +39,36 @@ pipeline {
                 '''
             }
         }
+
+        stage('Build Docker Image') {
+            steps {
+                sh '''
+                    if [ -f Dockerfile ]; then
+                        echo "Dockerfile found, building Docker image..."
+                        docker build -t ${IMAGE_NAME} .
+                    else
+                        echo "No Dockerfile found, creating a basic Dockerfile..."
+                        cat > Dockerfile <<EOF
+FROM python:3.10-slim
+WORKDIR /app
+COPY . .
+CMD ["python3", "-m", "http.server", "8000"]
+EOF
+                        docker build -t ${IMAGE_NAME} .
+                    fi
+                '''
+            }
+        }
     }
 
     post {
+        always {
+            echo 'Cleaning up workspace and local Docker images...'
+            sh '''
+                docker rmi ${IMAGE_NAME} || true
+            '''
+        }
+
         success {
             echo 'Pipeline Succeeded!'
         }
